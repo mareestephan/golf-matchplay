@@ -1,0 +1,21 @@
+@import '@/styles/variables';
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+}
+
+.shell__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.shell__content {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
