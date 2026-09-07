@@ -1,4 +1,5 @@
 @import './variables';
+@import './_swiss-minimalist-overrides';
 
 * {
   margin: 0;
@@ -13,54 +14,56 @@ html {
 }
 
 body {
-  background: linear-gradient(135deg, #FEF3DC 0%, #F0E8D8 100%);
-  color: var(--color-ink);
+  background: var(--color-bg);
+  color: var(--color-ink-muted);
   font-family: var(--font-body);
   font-size: var(--font-size-base);
   line-height: var(--line-height-normal);
+  font-weight: 400;
   transition: background-color var(--transition-base);
 }
 
-// 80's Retro Typography
+// Swiss Minimalist Editorial Typography
 h1 {
-  font-size: var(--font-size-4xl);
-  font-weight: 900;
+  font-size: clamp(2.5rem, 8vw, var(--font-size-5xl));
+  font-weight: 700;
   line-height: var(--line-height-tight);
-  letter-spacing: 0.08em;
-  margin-bottom: var(--space-4);
-  text-transform: uppercase;
-  font-style: italic;
-  color: var(--color-primary);
+  letter-spacing: -0.01em;
+  margin-bottom: var(--space-5);
+  color: var(--color-ink);
+  font-style: normal;
+  text-transform: none;
 }
 
 h2 {
   font-size: var(--font-size-3xl);
-  font-weight: 800;
+  font-weight: 700;
   line-height: var(--line-height-tight);
-  margin-bottom: var(--space-3);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-primary);
+  letter-spacing: -0.005em;
+  margin-bottom: var(--space-4);
+  color: var(--color-ink);
 }
 
 h3 {
   font-size: var(--font-size-2xl);
-  font-weight: 700;
-  line-height: var(--line-height-tight);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0;
   margin-bottom: var(--space-3);
-  letter-spacing: 0.05em;
-  color: var(--color-primary);
+  color: var(--color-ink);
 }
 
 h4 {
   font-size: var(--font-size-lg);
-  font-weight: 700;
+  font-weight: 600;
   margin-bottom: var(--space-2);
+  color: var(--color-ink);
 }
 
 p {
   margin-bottom: var(--space-4);
-  color: var(--color-ink);
+  color: var(--color-ink-muted);
+  line-height: var(--line-height-relaxed);
 
   &:last-child {
     margin-bottom: 0;
@@ -68,18 +71,19 @@ p {
 }
 
 a {
-  color: var(--color-primary);
-  text-decoration: underline;
-  font-weight: 600;
+  color: var(--color-secondary);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-secondary);
+  font-weight: 500;
   transition: all var(--transition-fast);
 
   &:hover {
     color: var(--color-accent);
-    text-decoration-thickness: 3px;
+    border-bottom-color: var(--color-accent);
   }
 
   &:focus {
-    outline: 2px solid var(--color-accent);
+    outline: 1px solid var(--color-secondary);
     outline-offset: 2px;
   }
 }
@@ -87,15 +91,24 @@ a {
 button {
   font-family: var(--font-body);
   cursor: pointer;
-  border: 2px solid var(--color-primary);
-  border-radius: 0;
-  font-weight: 700;
+  border: 1px solid var(--color-primary);
+  background: transparent;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  color: var(--color-primary);
+  border-radius: 0;
   transition: all var(--transition-fast);
 
+  &:hover {
+    background: var(--color-primary);
+    color: var(--color-bg);
+  }
+
   &:focus {
-    outline: 2px solid var(--color-accent);
+    outline: 1px solid var(--color-secondary);
     outline-offset: 2px;
   }
 
@@ -111,14 +124,20 @@ select {
   font-family: var(--font-body);
   font-size: var(--font-size-base);
   transition: all var(--transition-base);
-  border: 2px solid var(--color-primary);
+  border: 1px solid var(--color-border);
   border-radius: 0;
-  padding: var(--space-3);
-  font-weight: 600;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+  color: var(--color-ink);
+
+  &::placeholder {
+    color: var(--color-ink-light);
+  }
 
   &:focus {
     outline: none;
-    box-shadow: inset 0 0 0 2px var(--color-primary), 0 0 0 3px var(--color-accent);
+    border-color: var(--color-secondary);
+    box-shadow: inset 0 0 0 1px var(--color-secondary);
   }
 }
 

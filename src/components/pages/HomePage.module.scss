@@ -1,107 +1,118 @@
 @import '@/styles/variables';
-@import '@/styles/mixins';
 
 .page {
   max-width: var(--container-max);
   margin: 0 auto;
-  padding: var(--space-6) var(--container-padding);
+  padding: var(--space-8) var(--container-padding);
   width: 100%;
 }
 
-// Hero Section
+// Hero Section - Editorial Grid
 .hero {
-  margin-bottom: var(--space-8);
+  margin-bottom: var(--space-9);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-8);
+  align-items: center;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
 }
 
 .hero__content {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  padding: var(--space-6);
-  text-align: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  text-align: left;
 }
 
 .hero__season {
-  font-size: var(--font-size-2xl);
-  color: var(--color-ink-muted);
+  font-size: var(--font-size-sm);
+  color: var(--color-ink-light);
   margin: 0 0 var(--space-2) 0;
-  font-weight: var(--font-weight-normal);
-  letter-spacing: 0.05em;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .hero__match {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
   gap: var(--space-4);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-6);
 }
 
 .hero__player {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-4xl);
+  font-weight: 700;
   color: var(--color-ink);
+  margin: 0;
+  line-height: var(--line-height-tight);
+  letter-spacing: -0.01em;
 }
 
 .hero__vs {
   font-size: var(--font-size-base);
-  color: var(--color-ink-muted);
-  font-weight: var(--font-weight-normal);
+  color: var(--color-ink-light);
+  font-weight: 400;
 }
 
 .hero__score {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
   gap: var(--space-3);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-6);
 }
 
 .hero__number {
-  font-size: var(--font-size-4xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-primary);
+  font-size: clamp(3rem, 8vw, 5rem);
+  font-weight: 700;
+  color: var(--color-secondary);
   font-family: var(--font-mono);
+  line-height: 1;
 }
 
 .hero__separator {
   font-size: var(--font-size-2xl);
-  color: var(--color-ink-muted);
-  font-weight: var(--font-weight-light);
+  color: var(--color-ink-light);
+  font-weight: 300;
+  margin: 0 var(--space-1);
 }
 
 .hero__leader {
   font-size: var(--font-size-lg);
-  color: var(--color-primary);
-  font-weight: var(--font-weight-semibold);
-  margin: 0 0 var(--space-2) 0;
-  letter-spacing: 0.05em;
+  color: var(--color-ink);
+  font-weight: 700;
+  margin: 0 0 var(--space-3) 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .hero__target {
   font-size: var(--font-size-sm);
-  color: var(--color-ink-muted);
+  color: var(--color-ink-light);
   margin: 0 0 var(--space-4) 0;
-  font-weight: var(--font-weight-normal);
-  letter-spacing: 0.05em;
+  font-weight: 400;
 }
 
 .hero__progress {
-  margin: var(--space-4) 0 0 0;
+  margin: 0;
 }
 
 .hero__progress-bar {
   width: 100%;
-  height: 8px;
-  background-color: var(--color-border);
-  border-radius: 4px;
+  height: 2px;
+  background: var(--color-border);
+  border-radius: 0;
   overflow: hidden;
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-2);
 }
 
 .hero__progress-fill {
   height: 100%;
-  background-color: var(--color-primary);
+  background: var(--color-secondary);
   transition: width var(--transition-base);
 }
 
@@ -109,53 +120,54 @@
   display: flex;
   justify-content: space-between;
   font-size: var(--font-size-xs);
-  color: var(--color-ink-muted);
-  font-weight: var(--font-weight-medium);
+  color: var(--color-ink-light);
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.hero__progress-label {
-  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
 }
 
 // Recent Rounds
 .recent {
-  margin-bottom: var(--space-8);
+  margin-top: var(--space-9);
+  padding-top: var(--space-9);
+  border-top: 1px solid var(--color-border);
 }
 
 .recent__title {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  margin: 0 0 var(--space-4) 0;
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  margin: 0 0 var(--space-6) 0;
   color: var(--color-ink);
-  letter-spacing: 0.05em;
+  letter-spacing: -0.01em;
 }
 
 .recent__empty {
   text-align: center;
-  padding: var(--space-6);
-  color: var(--color-ink-muted);
-  background-color: var(--color-surface);
-  border-radius: var(--radius-md);
+  padding: var(--space-8);
+  color: var(--color-ink-light);
+  background: transparent;
+  border: 1px dashed var(--color-border);
   font-size: var(--font-size-base);
 }
 
 .recent__list {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-6);
 }
 
 .recent__card {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  padding: var(--space-4);
-  transition: all var(--transition-base);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-5) 0;
+  transition: none;
 
   &:hover {
-    border-color: var(--color-border);
-    box-shadow: var(--shadow-sm);
+    border-color: var(--color-secondary);
+  }
+
+  &:last-child {
+    border-bottom: none;
   }
 }
 
@@ -169,7 +181,7 @@
 
 .recent__date {
   font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
+  font-weight: 600;
   margin: 0;
   color: var(--color-ink);
 }
@@ -177,29 +189,29 @@
 .recent__status {
   font-size: var(--font-size-xs);
   padding: var(--space-1) var(--space-2);
-  background-color: var(--color-primary-soft);
-  color: var(--color-primary);
-  border-radius: var(--radius-sm);
-  font-weight: var(--font-weight-semibold);
+  background: transparent;
+  color: var(--color-ink-light);
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   white-space: nowrap;
 }
 
 .recent__course {
   font-size: var(--font-size-sm);
-  color: var(--color-ink-muted);
+  color: var(--color-ink-light);
   margin: 0 0 var(--space-3) 0;
 }
 
 .recent__scores {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-3);
+  gap: var(--space-5);
   margin-bottom: var(--space-3);
   padding: var(--space-3) 0;
-  border-top: 1px solid var(--color-border-light);
-  border-bottom: 1px solid var(--color-border-light);
+  border: none;
 }
 
 .recent__player {
@@ -211,42 +223,46 @@
 .recent__name {
   font-size: var(--font-size-sm);
   color: var(--color-ink);
-  font-weight: var(--font-weight-medium);
+  font-weight: 500;
 }
 
 .recent__score {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-2xl);
   font-family: var(--font-mono);
-  color: var(--color-primary);
-  font-weight: var(--font-weight-semibold);
+  color: var(--color-secondary);
+  font-weight: 700;
 }
 
 .recent__winner {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-primary);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--color-accent);
   margin: 0 0 var(--space-3) 0;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
 }
 
 .recent__link {
   display: inline-block;
   padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-primary);
-  color: var(--color-primary);
+  border: 1px solid var(--color-border);
+  color: var(--color-secondary);
   text-decoration: none;
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  transition: all var(--transition-fast);
+  border-radius: 0;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition: all var(--transition-base);
 
   &:hover {
-    background-color: var(--color-primary-soft);
+    background: var(--color-primary);
+    color: var(--color-bg);
+    border-color: var(--color-primary);
   }
 
   &:focus {
-    outline: 2px solid var(--color-primary);
+    outline: 1px solid var(--color-secondary);
     outline-offset: 2px;
   }
 }
