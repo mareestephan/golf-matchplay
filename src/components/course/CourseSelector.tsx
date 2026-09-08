@@ -1,10 +1,13 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { Search, X, MapPin, Check, AlertCircle } from 'lucide-react';
 import { Course } from '@/data/courses';
 import { useCourses } from '@/hooks/useCourses';
-import { getCourseDetails } from '@/lib/golfcourseapi';
-import styles from './CourseSelector.module.scss';
+import { getCourseDetails, CourseApiError } from '@/lib/golfcourseapi';
+import { Spinner } from '@/components/ui/spinner';
+import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 const MIN_SEARCH_LENGTH = 3;
 const DEBOUNCE_MS = 500;
@@ -15,117 +18,191 @@ interface CourseSelectorProps {
   onCourseSelect?: (course: Course) => void;
 }
 
-export default function CourseSelector({ value, onChange, onCourseSelect }: CourseSelectorProps) {
+export default function CourseSelector({
+  value,
+  onChange,
+  onCourseSelect,
+}: CourseSelectorProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSelecting, setIsSelecting] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
-  const { courses: apiCourses, isLoading, searchByName } = useCourses();
+  const [detailError, setDetailError] = useState('');
+  const [selected, setSelected] = useState<Course | null>(null);
+  const { courses, isLoading, error, hasSearched, searchByName, reset } =
+    useCourses();
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const selectedCourse = apiCourses.find(c => c.id === value);
+  const tooShort = searchTerm.trim().length < MIN_SEARCH_LENGTH;
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
+    setDetailError('');
 
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
 
     if (term.trim().length < MIN_SEARCH_LENGTH) {
+      reset();
       return;
     }
 
-    // Wait for the user to stop typing before firing a single request
     debounceRef.current = setTimeout(() => {
       searchByName(term.trim());
     }, DEBOUNCE_MS);
   };
 
-  // Clear any pending debounce on unmount
   useEffect(() => {
     return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
+      if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, []);
 
+  const clearSearch = () => {
+    setSearchTerm('');
+    reset();
+    setDetailError('');
+  };
+
   const handleCourseSelect = async (course: Course) => {
     onChange(course.id);
-    setShowSearch(false);
+    setSelected(course);
     setSearchTerm('');
+    reset();
+    setDetailError('');
     setIsSelecting(true);
 
-    // Fetch full course data (tee boxes, hole data) by ID (logged inside getCourseDetails)
-    const fullCourse = await getCourseDetails(course.id);
-    setIsSelecting(false);
-
-    if (onCourseSelect) {
-      onCourseSelect(fullCourse || course);
+    try {
+      const fullCourse = await getCourseDetails(course.id);
+      onCourseSelect?.(fullCourse);
+    } catch (err) {
+      // Fall back to the summary course; tee data just won't be available.
+      onCourseSelect?.(course);
+      setDetailError(
+        err instanceof CourseApiError
+          ? err.message
+          : 'Could not load full course details. Tee data may be missing.'
+      );
+    } finally {
+      setIsSelecting(false);
     }
   };
 
   return (
-    <div className={styles['course-selector']}>
-      <div className={styles['course-selector__header']}>
-        <label className={styles['course-selector__label']}>
-          Select Course
-        </label>
-        <button
-          type="button"
-          className={styles['course-selector__toggle']}
-          onClick={() => setShowSearch(!showSearch)}
-        >
-          {showSearch ? '✕ Close' : '🔍 Search'}
-        </button>
+    <div className="space-y-3">
+      <Label>Course</Label>
+
+      {/* Search input */}
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <input
+          type="text"
+          className="h-11 w-full border border-input bg-background pl-10 pr-10 font-sans text-sm text-ink placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/30"
+          placeholder="Search by course name or town…"
+          value={searchTerm}
+          onChange={(e) => handleSearch(e.target.value)}
+        />
+        {searchTerm && (
+          <button
+            type="button"
+            onClick={clearSearch}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground transition-colors hover:text-ink"
+            aria-label="Clear search"
+          >
+            <X className="size-4" />
+          </button>
+        )}
       </div>
 
-      {showSearch && (
-        <div className={styles['course-selector__search']}>
-          <input
-            type="text"
-            className={styles['course-selector__input']}
-            placeholder="Search by course name or location..."
-            value={searchTerm}
-            onChange={(e) => handleSearch(e.target.value)}
-          />
-          {isLoading && <p className={styles['course-selector__status']}>Searching...</p>}
-          {isSelecting && <p className={styles['course-selector__status']}>Loading course details...</p>}
-          {searchTerm.trim().length < MIN_SEARCH_LENGTH && (
-            <p className={styles['course-selector__hint']}>
-              Type {MIN_SEARCH_LENGTH}+ characters to search
-            </p>
-          )}
+      {/* States */}
+      {searchTerm && tooShort && (
+        <p className="font-mono text-[0.6875rem] uppercase tracking-wide text-muted-foreground">
+          Type {MIN_SEARCH_LENGTH}+ characters to search
+        </p>
+      )}
+
+      {!tooShort && isLoading && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Spinner className="size-4" /> Searching courses…
         </div>
       )}
 
-      {showSearch && apiCourses.length > 0 && (
-        <div className={styles['course-selector__results']}>
-          <div className={styles['course-selector__list']}>
-            {apiCourses.map(course => (
+      {isSelecting && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Spinner className="size-4" /> Loading course details…
+        </div>
+      )}
+
+      {error && (
+        <div className="flex items-start gap-2 border border-danger/40 bg-danger/10 p-3 text-sm text-danger">
+          <AlertCircle className="mt-0.5 size-4 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      {!isLoading && !error && hasSearched && !tooShort && courses.length === 0 && (
+        <p className="border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
+          No courses matched “{searchTerm.trim()}”. Try a different spelling or a
+          nearby town.
+        </p>
+      )}
+
+      {/* Results */}
+      {!isLoading && courses.length > 0 && (
+        <ul className="max-h-72 divide-y divide-border overflow-y-auto border border-border bg-card">
+          {courses.map((course) => (
+            <li key={course.id}>
               <button
-                key={course.id}
                 type="button"
-                className={`${styles['course-selector__item']} ${
-                  value === course.id ? styles['course-selector__item--selected'] : ''
-                }`}
                 onClick={() => handleCourseSelect(course)}
+                className={cn(
+                  'flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-muted',
+                  value === course.id && 'bg-muted'
+                )}
               >
-                <div>
-                  <strong>{course.name}</strong>
-                  <p>{course.location}</p>
-                </div>
+                <span className="min-w-0">
+                  <span className="block truncate font-display text-sm font-semibold text-ink">
+                    {course.name}
+                  </span>
+                  <span className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+                    <MapPin className="size-3" />
+                    {course.location}
+                  </span>
+                </span>
+                {value === course.id && (
+                  <Check className="size-4 shrink-0 text-teal" />
+                )}
               </button>
-            ))}
-          </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {detailError && (
+        <div className="flex items-start gap-2 border border-mustard/50 bg-mustard/10 p-3 text-sm text-ink">
+          <AlertCircle className="mt-0.5 size-4 shrink-0 text-mustard" />
+          <span>{detailError}</span>
         </div>
       )}
 
-      {value && selectedCourse && (
-        <div className={styles['course-selector__details']}>
-          <h4>{selectedCourse.name}</h4>
-          <p>{selectedCourse.location}</p>
-          <p className={styles['course-selector__par']}>Par {selectedCourse.par}</p>
+      {/* Selected summary */}
+      {value && selected && (
+        <div className="flex items-center justify-between border-2 border-teal bg-teal/5 p-4">
+          <div className="min-w-0">
+            <p className="eyebrow text-teal">Selected Course</p>
+            <p className="mt-1 truncate font-display text-base font-semibold text-ink">
+              {selected.name}
+            </p>
+            <p className="text-xs text-muted-foreground">{selected.location}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              onChange('');
+              setSelected(null);
+            }}
+            className="shrink-0 p-1.5 text-muted-foreground transition-colors hover:text-danger"
+            aria-label="Remove course"
+          >
+            <X className="size-4" />
+          </button>
         </div>
       )}
     </div>

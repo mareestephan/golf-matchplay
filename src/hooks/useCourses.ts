@@ -1,24 +1,20 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { Course } from '@/data/courses';
-import { searchCourses, getNearByCourses } from '@/lib/golfcourseapi';
+import { searchCourses, CourseApiError } from '@/lib/golfcourseapi';
 
-interface UseCoursesOptions {
-  searchTerm?: string;
-  latitude?: number;
-  longitude?: number;
-  radius?: number;
-}
-
-export function useCourses(options: UseCoursesOptions = {}) {
+export function useCourses() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const searchByName = useCallback(async (query: string) => {
     if (!query.trim()) {
       setCourses([]);
+      setHasSearched(false);
+      setError(null);
       return;
     }
 
@@ -29,44 +25,23 @@ export function useCourses(options: UseCoursesOptions = {}) {
       const results = await searchCourses(query);
       setCourses(results);
     } catch (err) {
-      console.error('useCourses search error:', err);
-      setError('Failed to search courses');
+      setError(
+        err instanceof CourseApiError
+          ? err.message
+          : 'Something went wrong while searching courses.'
+      );
       setCourses([]);
     } finally {
       setIsLoading(false);
+      setHasSearched(true);
     }
   }, []);
 
-  const searchNearby = useCallback(async (lat: number, lng: number, radius?: number) => {
-    console.log('🔄 useCourses: Starting nearby search:', { lat, lng, radius });
-    setIsLoading(true);
+  const reset = useCallback(() => {
+    setCourses([]);
     setError(null);
-
-    try {
-      const results = await getNearByCourses(lat, lng, radius);
-      setCourses(results);
-    } catch (err) {
-      console.error('useCourses nearby search error:', err);
-      setError('Failed to find nearby courses');
-      setCourses([]);
-    } finally {
-      setIsLoading(false);
-    }
+    setHasSearched(false);
   }, []);
 
-  useEffect(() => {
-    if (options.searchTerm) {
-      searchByName(options.searchTerm);
-    } else if (options.latitude && options.longitude) {
-      searchNearby(options.latitude, options.longitude, options.radius);
-    }
-  }, [options.searchTerm, options.latitude, options.longitude, options.radius, searchByName, searchNearby]);
-
-  return {
-    courses,
-    isLoading,
-    error,
-    searchByName,
-    searchNearby,
-  };
+  return { courses, isLoading, error, hasSearched, searchByName, reset };
 }

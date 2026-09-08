@@ -3,7 +3,7 @@
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import AppShell from '@/components/layout/AppShell';
-import RoundDetailPage from '@/components/pages/RoundDetailPage';
+import RoundDetailPage from '@/components/screens/RoundDetailPage';
 
 function RoundViewContent() {
   const searchParams = useSearchParams();

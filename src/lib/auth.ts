@@ -1,4 +1,4 @@
-import { User, AuthState } from '@/types';
+import { User } from '@/types';
 
 // Hardcoded credentials for now - in production this would be Supabase
 const VALID_USERS = [

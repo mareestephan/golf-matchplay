@@ -1,10 +1,27 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Bell, X, FileText, CheckCircle2, XCircle } from 'lucide-react';
 import { Notification } from '@/types';
 import { getCurrentUser } from '@/lib/auth';
-import { getNotifications, markAsRead, deleteNotification } from '@/lib/notifications';
-import styles from './NotificationCenter.module.scss';
+import {
+  getNotifications,
+  markAsRead,
+  deleteNotification,
+} from '@/lib/notifications';
+import { cn } from '@/lib/utils';
+
+const TYPE_ICON = {
+  ROUND_SUBMITTED: FileText,
+  ROUND_APPROVED: CheckCircle2,
+  ROUND_REJECTED: XCircle,
+} as const;
+
+const TYPE_COLOR = {
+  ROUND_SUBMITTED: 'text-mustard',
+  ROUND_APPROVED: 'text-success',
+  ROUND_REJECTED: 'text-danger',
+} as const;
 
 export default function NotificationCenter() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -13,104 +30,116 @@ export default function NotificationCenter() {
 
   useEffect(() => {
     if (!user) return;
-    
-    // Load notifications
-    const userNotifications = getNotifications(user.id);
-    setNotifications(userNotifications);
 
-    // Poll for new notifications every 5 seconds
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setNotifications(getNotifications(user.id));
     const interval = setInterval(() => {
-      const updated = getNotifications(user.id);
-      setNotifications(updated);
+      setNotifications(getNotifications(user.id));
     }, 5000);
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const handleMarkAsRead = (notificationId: string) => {
-    markAsRead(notificationId);
-    setNotifications(prev =>
-      prev.map(n => (n.id === notificationId ? { ...n, read: true } : n))
+  const handleMarkAsRead = (id: string) => {
+    markAsRead(id);
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
     );
   };
 
-  const handleDelete = (notificationId: string) => {
-    deleteNotification(notificationId);
-    setNotifications(prev => prev.filter(n => n.id !== notificationId));
+  const handleDelete = (id: string) => {
+    deleteNotification(id);
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
   return (
-    <div className={styles['notification-center']}>
+    <div className="relative">
       <button
-        className={styles['notification-center__bell']}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => setIsOpen((o) => !o)}
         aria-label="Notifications"
+        className="relative grid size-9 place-items-center border border-border text-muted-foreground transition-colors hover:border-ink hover:text-ink"
       >
-        <span className={styles['notification-center__icon']}>⊙</span>
+        <Bell className="size-4" />
         {unreadCount > 0 && (
-          <span className={styles['notification-center__badge']}>
+          <span className="absolute -right-1.5 -top-1.5 grid min-w-[1.125rem] place-items-center bg-terracotta px-1 font-mono text-[0.5625rem] font-bold leading-4 text-paper">
             {unreadCount}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className={styles['notification-center__panel']}>
-          <div className={styles['notification-center__header']}>
-            <h3>Notifications</h3>
-            <button
-              className={styles['notification-center__close']}
-              onClick={() => setIsOpen(false)}
-            >
-              ✕
-            </button>
-          </div>
+        <>
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setIsOpen(false)}
+            aria-hidden="true"
+          />
+          <div className="absolute right-0 top-[calc(100%+0.5rem)] z-50 w-[min(22rem,calc(100vw-2rem))] border border-ink bg-popover shadow-[6px_6px_0_rgba(25,24,23,0.12)]">
+            <div className="flex items-center justify-between border-b border-border px-4 py-3">
+              <p className="eyebrow text-ink">Notifications</p>
+              <button
+                onClick={() => setIsOpen(false)}
+                aria-label="Close"
+                className="text-muted-foreground transition-colors hover:text-ink"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
 
-          {notifications.length === 0 ? (
-            <div className={styles['notification-center__empty']}>
-              <p>No notifications yet</p>
-            </div>
-          ) : (
-            <div className={styles['notification-center__list']}>
-              {notifications.map(notif => (
-                <div
-                  key={notif.id}
-                  className={`${styles['notification-center__item']} ${
-                    !notif.read ? styles['notification-center__item--unread'] : ''
-                  }`}
-                >
-                  <div
-                    className={styles['notification-center__content']}
-                    onClick={() => handleMarkAsRead(notif.id)}
-                  >
-                    <span className={styles['notification-center__type']}>
-                      {notif.type === 'ROUND_SUBMITTED' && '📝'}
-                      {notif.type === 'ROUND_APPROVED' && '✅'}
-                      {notif.type === 'ROUND_REJECTED' && '❌'}
-                    </span>
-                    <div>
-                      <p className={styles['notification-center__message']}>
-                        {notif.message}
-                      </p>
-                      <time className={styles['notification-center__time']}>
-                        {new Date(notif.createdAt).toLocaleString()}
-                      </time>
+            {notifications.length === 0 ? (
+              <div className="px-4 py-10 text-center">
+                <p className="text-sm text-muted-foreground">
+                  No notifications yet
+                </p>
+              </div>
+            ) : (
+              <div className="max-h-[60vh] divide-y divide-border overflow-y-auto">
+                {notifications.map((notif) => {
+                  const Icon = TYPE_ICON[notif.type] ?? Bell;
+                  return (
+                    <div
+                      key={notif.id}
+                      className={cn(
+                        'flex items-start gap-3 px-4 py-3 transition-colors',
+                        !notif.read && 'bg-secondary/60'
+                      )}
+                    >
+                      <button
+                        onClick={() => handleMarkAsRead(notif.id)}
+                        className="flex flex-1 items-start gap-3 text-left"
+                      >
+                        <Icon
+                          className={cn(
+                            'mt-0.5 size-4 shrink-0',
+                            TYPE_COLOR[notif.type]
+                          )}
+                        />
+                        <span>
+                          <span className="block text-sm leading-snug text-ink">
+                            {notif.message}
+                          </span>
+                          <time className="mt-1 block font-mono text-[0.625rem] uppercase tracking-wide text-muted-foreground">
+                            {new Date(notif.createdAt).toLocaleString()}
+                          </time>
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => handleDelete(notif.id)}
+                        aria-label="Delete notification"
+                        className="mt-0.5 text-muted-foreground transition-colors hover:text-danger"
+                      >
+                        <X className="size-3.5" />
+                      </button>
                     </div>
-                  </div>
-                  <button
-                    className={styles['notification-center__delete']}
-                    onClick={() => handleDelete(notif.id)}
-                    aria-label="Delete notification"
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </>
       )}
     </div>
   );
