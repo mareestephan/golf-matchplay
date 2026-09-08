@@ -252,21 +252,7 @@ export default function HomePage() {
         )}
       </section>
 
-      {/* CTA */}
-      <section className="flex flex-col items-start justify-between gap-6 bg-ink px-8 py-12 text-paper md:flex-row md:items-center lg:px-12">
-        <div>
-          <p className="eyebrow text-mustard">Your move</p>
-          <h2 className="mt-3 font-display text-3xl font-bold uppercase tracking-tight md:text-4xl">
-            Ready for the next round?
-          </h2>
-        </div>
-        <Button asChild size="lg" variant="accent">
-          <Link href="/rounds/new">
-            Record a round
-            <ArrowRight className="size-4" />
-          </Link>
-        </Button>
-      </section>
+  
     </div>
   );
 }
