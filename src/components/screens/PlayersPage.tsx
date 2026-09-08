@@ -98,7 +98,7 @@ export default function PlayersPage() {
         index="04"
         eyebrow="The Contenders"
         title="Players"
-        description="Two players, one trophy. Head-to-head across every recorded season."
+        description="Head-to-head across every recorded season."
       />
 
       {/* Head to head */}

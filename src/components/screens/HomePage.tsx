@@ -58,7 +58,7 @@ export default function HomePage() {
           <p className="eyebrow flex items-center gap-2 text-terracotta">
             <span>Season 2026</span>
             <span className="text-muted-foreground">/</span>
-            <span className="text-ink">Matchplay Rivalry</span>
+            <span className="text-ink">Matchplay</span>
           </p>
           <h1 className="mt-6 font-display text-[clamp(3rem,9vw,7rem)] font-bold uppercase leading-[0.85] tracking-tight text-ink">
             Stephan

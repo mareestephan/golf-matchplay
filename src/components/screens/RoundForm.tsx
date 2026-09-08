@@ -222,6 +222,7 @@ export default function RoundForm({ existingRound }: RoundFormProps) {
         id,
         seasonId: existingRound?.seasonId ?? '2026',
         courseId: courseId || null,
+        courseName: selectedCourse?.name ?? existingRound?.courseName ?? null,
         playedAt: date || null,
         submittedBy: existingRound?.submittedBy ?? user?.id ?? 'stephan',
         approvedBy: existingRound?.approvedBy,

@@ -34,6 +34,7 @@ interface RoundRow {
   id: string;
   season_id: string;
   course_id: string | null;
+  course_name: string | null;
   played_at: string | null;
   submitted_by: string;
   approved_by: string | null;
@@ -54,6 +55,7 @@ function rowToRound(row: RoundRow): Round {
     id: row.id,
     seasonId: row.season_id,
     courseId: row.course_id,
+    courseName: row.course_name ?? undefined,
     playedAt: row.played_at,
     submittedBy: row.submitted_by,
     approvedBy: row.approved_by ?? undefined,
@@ -75,6 +77,7 @@ function roundToRow(round: Round): RoundRow {
     id: round.id,
     season_id: round.seasonId,
     course_id: round.courseId,
+    course_name: round.courseName ?? null,
     played_at: round.playedAt,
     submitted_by: round.submittedBy,
     approved_by: round.approvedBy ?? null,

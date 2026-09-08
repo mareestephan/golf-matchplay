@@ -78,6 +78,7 @@ export interface Round {
   id: string;
   seasonId: string;
   courseId: string | null;
+  courseName?: string | null;
   playedAt: string | null;
   submittedBy: string;
   approvedBy?: string;

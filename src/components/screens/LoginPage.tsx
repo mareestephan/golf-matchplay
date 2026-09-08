@@ -46,7 +46,7 @@ export default function LoginPage() {
         </div>
 
         <div>
-          <p className="eyebrow text-mustard">Season 2026 · First to Ten</p>
+          <p className="eyebrow text-mustard">Season 2026</p>
           <h1 className="mt-6 font-display text-[clamp(3rem,7vw,6rem)] font-bold uppercase leading-[0.86] tracking-tight">
             Stephan
             <br />
@@ -54,10 +54,7 @@ export default function LoginPage() {
             <br />
             Paul
           </h1>
-          <p className="mt-8 max-w-sm text-lg leading-relaxed text-paper/75">
-            A season-long rivalry played out one round at a time. Every stroke
-            recorded, every match decided, every bragging right earned.
-          </p>
+       
         </div>
 
         <div className="-mx-12">
@@ -87,13 +84,7 @@ export default function LoginPage() {
             </span>
           </div>
 
-          <p className="eyebrow text-terracotta">Members only</p>
-          <h2 className="mt-3 font-display text-4xl font-bold uppercase tracking-tight text-ink">
-            Sign in
-          </h2>
-          <p className="mt-3 text-muted-foreground">
-            Enter your credentials to access the clubhouse.
-          </p>
+       
 
           <form onSubmit={handleSubmit} className="mt-9 space-y-5">
             <div className="space-y-2">
@@ -151,12 +142,6 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <p className="mt-8 border-t border-border pt-5 font-mono text-[0.6875rem] leading-relaxed text-muted-foreground">
-            Demo access · usernames{' '}
-            <span className="text-ink">stephanmaree</span> or{' '}
-            <span className="text-ink">pauldueplessis</span>. Password is the
-            registered mobile number.
-          </p>
         </div>
       </main>
     </div>
