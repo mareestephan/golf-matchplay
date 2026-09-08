@@ -167,62 +167,88 @@ export default function HomePage() {
             </p>
           </div>
         ) : (
-          <ul className="divide-y divide-border border-t border-border">
-            {recentRounds.map((round, i) => {
-              const winner = playerName(round.winnerId);
-              const number = round.id.split('-').pop();
-              return (
-                <li key={round.id}>
-                  <Link
-                    href={`/rounds/view?id=${round.id}`}
-                    className="group grid grid-cols-[auto_1fr_auto] items-center gap-4 py-5 transition-colors hover:bg-card sm:grid-cols-[3rem_1fr_1fr_auto] sm:gap-6 sm:px-2"
-                  >
-                    <span className="font-mono text-sm text-muted-foreground">
-                      {String(number ?? i + 1).padStart(2, '0')}
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block font-display text-lg font-semibold text-ink">
-                        {round.playedAt
-                          ? new Date(round.playedAt).toLocaleDateString('en-ZA', {
-                              day: '2-digit',
-                              month: 'short',
-                              year: 'numeric',
-                            })
-                          : `Match ${number}`}
+          <>
+            {/* Column header */}
+            <div className="hidden grid-cols-[3rem_8rem_1fr_1fr_8rem_2rem] items-center gap-6 border-b border-border px-2 py-3 sm:grid">
+              <span className="eyebrow text-muted-foreground">#</span>
+              <span className="eyebrow text-muted-foreground">Date</span>
+              <span className="eyebrow text-muted-foreground">Match</span>
+              <span className="eyebrow text-muted-foreground">Result</span>
+              <span className="eyebrow text-muted-foreground">Status</span>
+              <span />
+            </div>
+
+            <ul className="divide-y divide-border">
+              {recentRounds.map((round, i) => {
+                const winner = playerName(round.winnerId);
+                const number = round.id.split('-').pop();
+                return (
+                  <li key={round.id}>
+                    <Link
+                      href={`/rounds/view?id=${round.id}`}
+                      className="group grid grid-cols-[2.5rem_1fr_auto] items-center gap-4 py-5 transition-colors hover:bg-card sm:grid-cols-[3rem_8rem_1fr_1fr_8rem_2rem] sm:gap-6 sm:px-2"
+                    >
+                      <span className="font-mono text-sm text-muted-foreground">
+                        {String(number ?? i + 1).padStart(2, '0')}
                       </span>
-                      <span className="font-mono text-xs uppercase tracking-wide text-muted-foreground">
-                        {round.isHistorical ? 'Historical' : 'Season 2026'}
-                      </span>
-                    </span>
-                    <span className="hidden items-center gap-2 sm:flex">
-                      {winner ? (
-                        <>
-                          <Trophy className="size-4 text-mustard" />
-                          <span className="font-mono text-xs font-bold uppercase tracking-wide text-ink">
-                            {winner} won
-                          </span>
-                        </>
-                      ) : (
-                        <span className="font-mono text-xs uppercase tracking-wide text-muted-foreground">
-                          Pending result
+                      <span className="hidden sm:block">
+                        <span className="block font-mono text-sm text-ink">
+                          {round.playedAt
+                            ? new Date(round.playedAt).toLocaleDateString(
+                                'en-ZA',
+                                { day: '2-digit', month: 'short', year: 'numeric' }
+                              )
+                            : '—'}
                         </span>
-                      )}
-                    </span>
-                    <span className="flex items-center gap-3">
-                      <Badge
-                        variant={
-                          round.status === 'APPROVED' ? 'success' : 'outline'
-                        }
-                      >
-                        {round.status === 'APPROVED' ? 'Approved' : 'Pending'}
-                      </Badge>
-                      <ArrowRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-terracotta" />
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+                        <span className="font-mono text-xs uppercase tracking-wide text-muted-foreground">
+                          {round.isHistorical ? 'Historical' : 'Recorded'}
+                        </span>
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block font-display text-lg font-semibold text-ink">
+                          {round.courseName ?? `Match ${number}`}
+                        </span>
+                        <span className="block font-mono text-xs uppercase tracking-wide text-muted-foreground sm:hidden">
+                          {round.playedAt
+                            ? new Date(round.playedAt).toLocaleDateString(
+                                'en-ZA',
+                                { day: '2-digit', month: 'short', year: 'numeric' }
+                              )
+                            : round.isHistorical
+                              ? 'Historical'
+                              : 'Recorded'}
+                        </span>
+                      </span>
+                      <span className="hidden items-center gap-2 sm:flex">
+                        {winner ? (
+                          <>
+                            <Trophy className="size-4 text-mustard" />
+                            <span className="font-mono text-xs font-bold uppercase tracking-wide text-ink">
+                              {winner} won
+                            </span>
+                          </>
+                        ) : (
+                          <span className="font-mono text-xs uppercase tracking-wide text-muted-foreground">
+                            Pending
+                          </span>
+                        )}
+                      </span>
+                      <span className="flex items-center gap-3 justify-self-end sm:justify-self-start">
+                        <Badge
+                          variant={
+                            round.status === 'APPROVED' ? 'success' : 'outline'
+                          }
+                        >
+                          {round.status === 'APPROVED' ? 'Approved' : round.status}
+                        </Badge>
+                      </span>
+                      <ArrowRight className="hidden size-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-terracotta sm:block" />
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
         )}
       </section>
 
