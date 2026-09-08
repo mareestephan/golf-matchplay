@@ -29,6 +29,7 @@ export function useCourses(options: UseCoursesOptions = {}) {
       const results = await searchCourses(query);
       setCourses(results);
     } catch (err) {
+      console.error('useCourses search error:', err);
       setError('Failed to search courses');
       setCourses([]);
     } finally {
@@ -37,6 +38,7 @@ export function useCourses(options: UseCoursesOptions = {}) {
   }, []);
 
   const searchNearby = useCallback(async (lat: number, lng: number, radius?: number) => {
+    console.log('🔄 useCourses: Starting nearby search:', { lat, lng, radius });
     setIsLoading(true);
     setError(null);
 
@@ -44,6 +46,7 @@ export function useCourses(options: UseCoursesOptions = {}) {
       const results = await getNearByCourses(lat, lng, radius);
       setCourses(results);
     } catch (err) {
+      console.error('useCourses nearby search error:', err);
       setError('Failed to find nearby courses');
       setCourses([]);
     } finally {

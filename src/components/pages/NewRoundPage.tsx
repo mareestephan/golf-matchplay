@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
 import { HISTORICAL_ROUNDS_2026 } from '@/data/seedData';
-import { COURSES } from '@/data/courses';
+import { Course, CourseHole, TeeBox } from '@/data/courses';
+import { RoundConditions } from '@/types';
 import CourseSelector from '@/components/course/CourseSelector';
+import TeeSelector from '@/components/course/TeeSelector';
 import styles from './NewRoundPage.module.scss';
 
 interface HoleScores {
@@ -16,15 +18,26 @@ interface HoleScores {
 }
 
 export default function NewRoundPage() {
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [courseId, setCourseId] = useState('cp-estates');
+  const [isHydrated, setIsHydrated] = useState(false);
+  const [date, setDate] = useState('');
+  const [courseId, setCourseId] = useState('');
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [selectedTee, setSelectedTee] = useState<TeeBox | null>(null);
+  const [courseHoles, setCourseHoles] = useState<CourseHole[]>([]);
   const [holeScores, setHoleScores] = useState<HoleScores>({});
+  const [conditions, setConditions] = useState<RoundConditions>({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
   const user = getCurrentUser();
 
-  const course = COURSES.find(c => c.id === courseId);
+  // Set date after hydration to avoid mismatch
+  useEffect(() => {
+    setDate(new Date().toISOString().split('T')[0]);
+    setIsHydrated(true);
+  }, []);
+
+  const course = selectedCourse;
   const totalStephanScore = Object.values(holeScores).reduce((sum, hole) => {
     return sum + (typeof hole.stephan === 'number' ? hole.stephan : 0);
   }, 0);
@@ -40,6 +53,19 @@ export default function NewRoundPage() {
         [player]: value === '' ? '' : parseInt(value) || '',
       },
     }));
+  };
+
+  const handleTeeSelect = (tee: TeeBox) => {
+    setSelectedTee(tee);
+    setCourseHoles(tee.holes.length > 0 ? tee.holes : course?.holes || []);
+    setHoleScores({});
+  };
+
+  const handleCourseChange = (newCourse: Course) => {
+    setSelectedCourse(newCourse);
+    setSelectedTee(null);
+    setCourseHoles([]);
+    setHoleScores({});
   };
 
   const handleSubmit = async (e: React.FormEvent, status: 'DRAFT' | 'PENDING_APPROVAL' = 'DRAFT') => {
@@ -87,6 +113,7 @@ export default function NewRoundPage() {
           stephanPutts: 0,
           paulPutts: 0,
         })),
+        conditions,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -98,7 +125,7 @@ export default function NewRoundPage() {
       localStorage.setItem('matchplay_rounds', JSON.stringify(rounds));
 
       // Redirect to round detail or rounds page
-      router.push(`/rounds/${newRoundId}`);
+      router.push(`/rounds/view?id=${newRoundId}`);
     } catch (err) {
       setError('Failed to save round. Please try again.');
       setIsLoading(false);
@@ -137,12 +164,129 @@ export default function NewRoundPage() {
             <CourseSelector 
               value={courseId} 
               onChange={setCourseId}
+              onCourseSelect={handleCourseChange}
             />
+
+            {/* Tee Selection */}
+            {selectedCourse && (
+              <TeeSelector 
+                course={selectedCourse}
+                onTeeSelect={handleTeeSelect}
+              />
+            )}
+          </div>
+
+          {/* Round Conditions */}
+          <div className={styles['page__section']}>
+            <h2 className={styles['page__section-title']}>Conditions</h2>
+
+            <div className={styles['page__grid']}>
+              <div className={styles['page__field']}>
+                <label className={styles['page__label']}>Weather</label>
+                <div className={styles['page__toggle-group']}>
+                  {(['dry', 'raining'] as const).map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      className={`${styles['page__toggle-button']} ${conditions.weather === option ? styles['page__toggle-button--active'] : ''}`}
+                      onClick={() => setConditions(prev => ({ ...prev, weather: option }))}
+                    >
+                      {option === 'dry' ? 'Dry' : 'Raining'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className={styles['page__field']}>
+                <label className={styles['page__label']}>Wind Speed</label>
+                <div className={styles['page__toggle-group']}>
+                  {(['calm', 'light', 'moderate', 'strong'] as const).map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      className={`${styles['page__toggle-button']} ${conditions.windSpeed === option ? styles['page__toggle-button--active'] : ''}`}
+                      onClick={() => setConditions(prev => ({ ...prev, windSpeed: option }))}
+                    >
+                      {option.charAt(0).toUpperCase() + option.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className={styles['page__field']}>
+                <label className={styles['page__label']}>Fairways</label>
+                <div className={styles['page__toggle-group']}>
+                  {(['hard', 'medium', 'soft'] as const).map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      className={`${styles['page__toggle-button']} ${conditions.fairwaysCondition === option ? styles['page__toggle-button--active'] : ''}`}
+                      onClick={() => setConditions(prev => ({ ...prev, fairwaysCondition: option }))}
+                    >
+                      {option.charAt(0).toUpperCase() + option.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className={styles['page__field']}>
+                <label className={styles['page__label']}>Greens Speed</label>
+                <div className={styles['page__toggle-group']}>
+                  {(['fast', 'medium', 'slow'] as const).map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      className={`${styles['page__toggle-button']} ${conditions.greensSpeed === option ? styles['page__toggle-button--active'] : ''}`}
+                      onClick={() => setConditions(prev => ({ ...prev, greensSpeed: option }))}
+                    >
+                      {option.charAt(0).toUpperCase() + option.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className={styles['page__field']}>
+                <label className={styles['page__label']}>Grain</label>
+                <div className={styles['page__toggle-group']}>
+                  <button
+                    type="button"
+                    className={`${styles['page__toggle-button']} ${conditions.grainAffected === true ? styles['page__toggle-button--active'] : ''}`}
+                    onClick={() => setConditions(prev => ({ ...prev, grainAffected: true }))}
+                  >
+                    Affected Play
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles['page__toggle-button']} ${conditions.grainAffected === false ? styles['page__toggle-button--active'] : ''}`}
+                    onClick={() => setConditions(prev => ({ ...prev, grainAffected: false }))}
+                  >
+                    No Effect
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles['page__field']}>
+              <label htmlFor="conditions-notes" className={styles['page__label']}>
+                Notes
+              </label>
+              <textarea
+                id="conditions-notes"
+                className={styles['page__input']}
+                rows={3}
+                value={conditions.notes || ''}
+                onChange={(e) => setConditions(prev => ({ ...prev, notes: e.target.value }))}
+                placeholder="Any other conditions worth noting..."
+              />
+            </div>
           </div>
 
           {/* Scorecard */}
+          {course && selectedTee ? (
           <div className={styles['page__section']}>
-            <h2 className={styles['page__section-title']}>Scorecard (18 Holes)</h2>
+            <h2 className={styles['page__section-title']}>
+              Scorecard (18 Holes) — {selectedTee.teeName} Tees
+            </h2>
             
             <div className={styles['page__scorecard']}>
               <table className={styles['page__table']}>
@@ -150,15 +294,21 @@ export default function NewRoundPage() {
                   <tr>
                     <th className={styles['page__th']}>Hole</th>
                     <th className={styles['page__th']}>Par</th>
+                    {courseHoles.some(h => h.yardage) && (
+                      <th className={styles['page__th']}>Yards</th>
+                    )}
                     <th className={styles['page__th']}>Stephan</th>
                     <th className={styles['page__th']}>Paul</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {course?.holes.map(hole => (
+                  {courseHoles.map(hole => (
                     <tr key={hole.holeNumber}>
                       <td className={styles['page__td']}>{hole.holeNumber}</td>
                       <td className={styles['page__td']}>{hole.par}</td>
+                      {courseHoles.some(h => h.yardage) && (
+                        <td className={styles['page__td']}>{hole.yardage || '—'}</td>
+                      )}
                       <td className={styles['page__td']}>
                         <input
                           type="number"
@@ -207,6 +357,11 @@ export default function NewRoundPage() {
               )}
             </div>
           </div>
+          ) : (
+            <div className={styles['page__error']}>
+              Please select a course to begin entering scores.
+            </div>
+          )}
 
           {error && (
             <div className={styles['page__error']}>

@@ -15,7 +15,6 @@ const NAV_LINKS: NavLink[] = [
   { href: '/seasons', label: 'SEASONS' },
   { href: '/players', label: 'PLAYERS' },
   { href: '/stats', label: 'STATS' },
-  { href: '/bag', label: "BAG" },
 ];
 
 export default function Navigation() {

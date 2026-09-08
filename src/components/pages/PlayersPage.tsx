@@ -119,10 +119,6 @@ export default function PlayersPage() {
               </div>
             </div>
 
-            <div className={styles['card__section']}>
-              <h3 className={styles['card__section-title']}>What's in the Bag</h3>
-              <p className={styles['card__empty']}>Bag details coming soon...</p>
-            </div>
           </section>
         ))}
       </div>

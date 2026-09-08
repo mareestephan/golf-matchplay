@@ -157,6 +157,58 @@ export default function RoundDetailPage({ roundId }: RoundDetailPageProps) {
             </div>
           </div>
 
+          {/* Conditions Section */}
+          {round.conditions && (
+            <div className={styles['section']}>
+              <h2 className={styles['section__title']}>Conditions</h2>
+              <div className={styles['info-grid']}>
+                {round.conditions.weather && (
+                  <div className={styles['info-item']}>
+                    <span className={styles['info-label']}>Weather</span>
+                    <span className={styles['info-value']}>
+                      {round.conditions.weather === 'raining' ? 'Raining' : 'Dry'}
+                    </span>
+                  </div>
+                )}
+                {round.conditions.windSpeed && (
+                  <div className={styles['info-item']}>
+                    <span className={styles['info-label']}>Wind</span>
+                    <span className={styles['info-value']}>
+                      {round.conditions.windSpeed.charAt(0).toUpperCase() + round.conditions.windSpeed.slice(1)}
+                    </span>
+                  </div>
+                )}
+                {round.conditions.fairwaysCondition && (
+                  <div className={styles['info-item']}>
+                    <span className={styles['info-label']}>Fairways</span>
+                    <span className={styles['info-value']}>
+                      {round.conditions.fairwaysCondition.charAt(0).toUpperCase() + round.conditions.fairwaysCondition.slice(1)}
+                    </span>
+                  </div>
+                )}
+                {round.conditions.greensSpeed && (
+                  <div className={styles['info-item']}>
+                    <span className={styles['info-label']}>Greens</span>
+                    <span className={styles['info-value']}>
+                      {round.conditions.greensSpeed.charAt(0).toUpperCase() + round.conditions.greensSpeed.slice(1)}
+                    </span>
+                  </div>
+                )}
+                <div className={styles['info-item']}>
+                  <span className={styles['info-label']}>Grain</span>
+                  <span className={styles['info-value']}>
+                    {round.conditions.grainAffected ? 'Affected play' : 'No effect'}
+                  </span>
+                </div>
+              </div>
+              {round.conditions.notes && (
+                <p className={styles['empty']} style={{ marginTop: 'var(--space-4)' }}>
+                  {round.conditions.notes}
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Scores Section */}
           <div className={styles['section']}>
             <h2 className={styles['section__title']}>Scores</h2>

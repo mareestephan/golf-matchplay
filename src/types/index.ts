@@ -65,6 +65,15 @@ export interface HoleScore {
   notes?: string;
 }
 
+export interface RoundConditions {
+  weather?: 'dry' | 'raining';
+  windSpeed?: 'calm' | 'light' | 'moderate' | 'strong';
+  fairwaysCondition?: 'hard' | 'medium' | 'soft';
+  greensSpeed?: 'fast' | 'medium' | 'slow';
+  grainAffected?: boolean;
+  notes?: string;
+}
+
 export interface Round {
   id: string;
   seasonId: string;
@@ -75,6 +84,7 @@ export interface Round {
   status: RoundStatus;
   winnerId?: string;
   scores: HoleScore[];
+  conditions?: RoundConditions;
   submittedAt: string;
   approvedAt?: string;
   rejectionReason?: string;

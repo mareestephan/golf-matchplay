@@ -1,9 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Course, COURSES } from '@/data/courses';
+import { useState, useEffect, useRef } from 'react';
+import { Course } from '@/data/courses';
 import { useCourses } from '@/hooks/useCourses';
+import { getCourseDetails } from '@/lib/golfcourseapi';
 import styles from './CourseSelector.module.scss';
+
+const MIN_SEARCH_LENGTH = 3;
+const DEBOUNCE_MS = 500;
 
 interface CourseSelectorProps {
   value: string;
@@ -13,31 +17,51 @@ interface CourseSelectorProps {
 
 export default function CourseSelector({ value, onChange, onCourseSelect }: CourseSelectorProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
+  const [isSelecting, setIsSelecting] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const { courses: apiCourses, isLoading, searchByName } = useCourses();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Combine hardcoded and API courses
-  const allCourses = [...COURSES, ...apiCourses];
-  const uniqueCourses = Array.from(new Map(allCourses.map(c => [c.id, c])).values());
+  const selectedCourse = apiCourses.find(c => c.id === value);
 
-  const selectedCourse = uniqueCourses.find(c => c.id === value);
-
-  const handleSearch = async (term: string) => {
+  const handleSearch = (term: string) => {
     setSearchTerm(term);
-    if (term.trim().length > 2) {
-      setIsSearching(true);
-      await searchByName(term);
-      setIsSearching(false);
+
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
     }
+
+    if (term.trim().length < MIN_SEARCH_LENGTH) {
+      return;
+    }
+
+    // Wait for the user to stop typing before firing a single request
+    debounceRef.current = setTimeout(() => {
+      searchByName(term.trim());
+    }, DEBOUNCE_MS);
   };
 
-  const handleCourseSelect = (course: Course) => {
+  // Clear any pending debounce on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, []);
+
+  const handleCourseSelect = async (course: Course) => {
     onChange(course.id);
     setShowSearch(false);
     setSearchTerm('');
+    setIsSelecting(true);
+
+    // Fetch full course data (tee boxes, hole data) by ID (logged inside getCourseDetails)
+    const fullCourse = await getCourseDetails(course.id);
+    setIsSelecting(false);
+
     if (onCourseSelect) {
-      onCourseSelect(course);
+      onCourseSelect(fullCourse || course);
     }
   };
 
@@ -66,9 +90,10 @@ export default function CourseSelector({ value, onChange, onCourseSelect }: Cour
             onChange={(e) => handleSearch(e.target.value)}
           />
           {isLoading && <p className={styles['course-selector__status']}>Searching...</p>}
-          {searchTerm.length <= 2 && (
+          {isSelecting && <p className={styles['course-selector__status']}>Loading course details...</p>}
+          {searchTerm.trim().length < MIN_SEARCH_LENGTH && (
             <p className={styles['course-selector__hint']}>
-              Type 3+ characters to search
+              Type {MIN_SEARCH_LENGTH}+ characters to search
             </p>
           )}
         </div>
@@ -76,7 +101,6 @@ export default function CourseSelector({ value, onChange, onCourseSelect }: Cour
 
       {showSearch && apiCourses.length > 0 && (
         <div className={styles['course-selector__results']}>
-          <p className={styles['course-selector__label']}>API Results</p>
           <div className={styles['course-selector__list']}>
             {apiCourses.map(course => (
               <button
@@ -97,28 +121,7 @@ export default function CourseSelector({ value, onChange, onCourseSelect }: Cour
         </div>
       )}
 
-      <div className={styles['course-selector__main']}>
-        <p className={styles['course-selector__label']}>Featured Courses</p>
-        <select
-          className={styles['course-selector__select']}
-          value={value}
-          onChange={(e) => {
-            const course = uniqueCourses.find(c => c.id === e.target.value);
-            if (course) {
-              handleCourseSelect(course);
-            }
-          }}
-        >
-          <option value="">Select a course...</option>
-          {COURSES.map(c => (
-            <option key={c.id} value={c.id}>
-              {c.name} ({c.location})
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {selectedCourse && (
+      {value && selectedCourse && (
         <div className={styles['course-selector__details']}>
           <h4>{selectedCourse.name}</h4>
           <p>{selectedCourse.location}</p>

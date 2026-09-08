@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth';
 import Header from './Header';
-import Navigation from './Navigation';
 import styles from './AppShell.module.scss';
 
 interface AppShellProps {
@@ -19,11 +18,12 @@ export default function AppShell({ children, protected: isProtected = true }: Ap
 
   useEffect(() => {
     const user = getCurrentUser();
+    setIsAuthenticated(!!user);
 
     if (isProtected && !user) {
       router.push('/login');
+      setIsLoading(false);
     } else {
-      setIsAuthenticated(!!user);
       setIsLoading(false);
     }
   }, [isProtected, router]);
@@ -39,7 +39,6 @@ export default function AppShell({ children, protected: isProtected = true }: Ap
   return (
     <div className={styles.shell}>
       <Header />
-      {isAuthenticated && <Navigation />}
       <main className={styles['shell__main']}>
         <div className={styles['shell__content']}>
           {children}

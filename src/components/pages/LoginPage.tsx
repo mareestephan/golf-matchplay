@@ -32,10 +32,7 @@ export default function LoginPage() {
     <div className={styles.page}>
       <div className={styles['page__container']}>
         <div className={styles['page__card']}>
-          <div className={styles['page__header']}>
-            <h1 className={styles['page__title']}>Golf Matchplay</h1>
-            <p className={styles['page__subtitle']}>Sign In to Continue</p>
-          </div>
+    
 
           <form onSubmit={handleSubmit} className={styles['page__form']}>
             <div className={styles['page__field']}>
@@ -83,12 +80,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className={styles['page__info']}>
-            <p className={styles['page__credentials']}>
-              <strong>Demo Accounts Available</strong>
-            </p>
-            <p className={styles['page__hint']}>Contact the admin for credentials</p>
-          </div>
         </div>
       </div>
     </div>

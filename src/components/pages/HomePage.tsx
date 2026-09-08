@@ -69,6 +69,7 @@ export default function HomePage() {
               </span>
             </div>
           </div>
+
         </div>
       </section>
 
@@ -125,7 +126,7 @@ export default function HomePage() {
                 )}
 
                 <Link
-                  href={`/rounds/${round.id}`}
+                  href={`/rounds/view?id=${round.id}`}
                   className={styles['recent__link']}
                 >
                   View Round

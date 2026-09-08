@@ -4,12 +4,32 @@ export interface Course {
   location: string;
   par: number;
   holes: CourseHole[];
+  tees?: {
+    male?: number;
+    female?: number;
+    senior?: number;
+  };
+  teeBoxes?: TeeBox[];
+}
+
+export interface TeeBox {
+  gender: string;
+  teeName: string;
+  courseRating?: number;
+  slopeRating?: number;
+  bogeyRating?: number;
+  totalYards?: number;
+  totalMeters?: number;
+  parTotal?: number;
+  numberOfHoles?: number;
+  holes: CourseHole[];
 }
 
 export interface CourseHole {
   holeNumber: number;
   par: number;
   handicap: number;
+  yardage?: number;
 }
 
 // Hardcoded popular South African courses

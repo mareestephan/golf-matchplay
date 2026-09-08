@@ -25,7 +25,7 @@ export default function NotificationCenter() {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [user]);
+  }, [user?.id]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -48,7 +48,7 @@ export default function NotificationCenter() {
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Notifications"
       >
-        <span className={styles['notification-center__icon']}>🔔</span>
+        <span className={styles['notification-center__icon']}>⊙</span>
         {unreadCount > 0 && (
           <span className={styles['notification-center__badge']}>
             {unreadCount}

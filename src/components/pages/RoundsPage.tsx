@@ -43,7 +43,7 @@ export default function RoundsPage() {
             {sortedRounds.map((round) => (
               <Link
                 key={round.id}
-                href={`/rounds/${round.id}`}
+                href={`/rounds/view?id=${round.id}`}
                 className={styles['table__row']}
               >
                 <div className={styles['table__cell']}>
