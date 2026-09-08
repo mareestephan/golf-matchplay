@@ -14,7 +14,7 @@ const VALID_USERS = [
     id: 'paul',
     name: 'Paul Du Plessis',
     phone: '0722189584',
-    username: 'pauldueplessis',
+    username: 'paulduplessis',
     password: '0722189584',
     role: 'player' as const,
   },
